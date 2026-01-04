@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://setting_panel"]
+
+[node name="SettingsPanel" type="VBoxContainer"]
+custom_minimum_size = Vector2(250, 400)
+
+[node name="Title" type="Label" parent="."]
+text = "Godot MCP Server"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+
+[node name="StatusContainer" type="HBoxContainer" parent="."]
+
+[node name="StatusLabel" type="Label" parent="StatusContainer"]
+text = "Status: "
+
+[node name="StatusValue" type="Label" parent="StatusContainer"]
+text = "Stopped"
+
+[node name="PortContainer" type="HBoxContainer" parent="."]
+
+[node name="PortLabel" type="Label" parent="PortContainer"]
+text = "Port: "
+
+[node name="PortSpinBox" type="SpinBox" parent="PortContainer"]
+min_value = 1024.0
+max_value = 65535.0
+value = 3000.0
+
+[node name="AutoStartCheck" type="CheckBox" parent="."]
+text = "Auto-start on load"
+
+[node name="DebugCheck" type="CheckBox" parent="."]
+text = "Debug mode"
+
+[node name="HSeparator2" type="HSeparator" parent="."]
+
+[node name="ButtonContainer" type="HBoxContainer" parent="."]
+
+[node name="StartButton" type="Button" parent="ButtonContainer"]
+text = "Start"
+
+[node name="StopButton" type="Button" parent="ButtonContainer"]
+text = "Stop"
+
+[node name="HSeparator3" type="HSeparator" parent="."]
+
+[node name="InfoLabel" type="Label" parent="."]
+text = "Endpoint: http://127.0.0.1:3000/mcp"
+autowrap_mode = 3
+
+[node name="ConnectionLabel" type="Label" parent="."]
+text = "Connections: 0"
