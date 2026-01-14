@@ -389,6 +389,40 @@ func _get_filesystem() -> EditorFileSystem:
 	return null
 
 
+func _get_scene_path(node: Node) -> String:
+	"""Get the scene-relative path of a node instead of the full editor tree path.
+
+	This returns a clean path like 'UI/ScoreboardFrame' instead of
+	'/root/@EditorNode@20475/.../@SubViewport@10532/GameScene/UI/ScoreboardFrame'
+	"""
+	if not node or not node.is_inside_tree():
+		return ""
+
+	var scene_root = _get_edited_scene_root()
+	if not scene_root:
+		# Fallback to full path if no scene is being edited
+		return str(node.get_path())
+
+	# If the node is the scene root itself
+	if node == scene_root:
+		return str(node.name)
+
+	# Check if the node is under the scene root
+	var node_path = node.get_path()
+	var scene_path = scene_root.get_path()
+	var node_path_str = str(node_path)
+	var scene_path_str = str(scene_path)
+
+	if node_path_str.begins_with(scene_path_str + "/"):
+		# Return the relative path from scene root
+		return node_path_str.substr(scene_path_str.length() + 1)
+	elif node_path_str == scene_path_str:
+		return str(node.name)
+	else:
+		# Node is not under the scene root, return full path
+		return node_path_str
+
+
 func _node_to_dict(node: Node, include_children: bool = false, max_depth: int = 3) -> Dictionary:
 	if not node:
 		return {}
@@ -396,7 +430,7 @@ func _node_to_dict(node: Node, include_children: bool = false, max_depth: int = 
 	var result = {
 		"name": str(node.name),
 		"type": str(node.get_class()),
-		"path": str(node.get_path()) if node.is_inside_tree() else "",
+		"path": _get_scene_path(node),
 		"visible": bool(node.visible) if node is CanvasItem else (bool(node.visible) if node is Node3D else true),
 	}
 

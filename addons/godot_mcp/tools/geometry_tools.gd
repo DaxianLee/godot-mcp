@@ -332,7 +332,7 @@ func _create_csg(args: Dictionary) -> Dictionary:
 	csg.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(csg.get_path()),
+		"path": _get_scene_path(csg),
 		"type": csg_type,
 		"name": node_name
 	}, "CSG node created")
@@ -489,7 +489,7 @@ func _bake_csg_mesh(path: String) -> Dictionary:
 
 	return _success({
 		"original": path,
-		"baked_path": str(mesh_instance.get_path())
+		"baked_path": _get_scene_path(mesh_instance)
 	}, "CSG baked to mesh")
 
 
@@ -510,7 +510,7 @@ func _list_csg_nodes() -> Dictionary:
 func _find_csg_nodes(node: Node, result: Array[Dictionary]) -> void:
 	if node is CSGShape3D:
 		result.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": node.get_class(),
 			"operation": node.operation
 		})
@@ -566,7 +566,7 @@ func _create_gridmap(args: Dictionary) -> Dictionary:
 	gridmap.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(gridmap.get_path()),
+		"path": _get_scene_path(gridmap),
 		"name": node_name
 	}, "GridMap created")
 
@@ -803,7 +803,7 @@ func _create_multimesh(args: Dictionary) -> Dictionary:
 	multi_instance.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(multi_instance.get_path()),
+		"path": _get_scene_path(multi_instance),
 		"name": node_name
 	}, "MultiMeshInstance3D created")
 

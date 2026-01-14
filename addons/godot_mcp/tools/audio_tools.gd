@@ -502,7 +502,7 @@ func _list_audio_players() -> Dictionary:
 func _find_audio_players(node: Node, result: Array[Dictionary]) -> void:
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
 		var info = {
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": str(node.get_class()),
 			"playing": node.playing,
 			"bus": node.bus
@@ -521,7 +521,7 @@ func _get_player_info(path: String) -> Dictionary:
 		return _error("Audio player not found: %s" % path)
 
 	var info = {
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"type": str(player.get_class()),
 		"playing": player.playing,
 		"stream_paused": player.stream_paused,

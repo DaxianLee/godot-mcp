@@ -612,7 +612,7 @@ func _list_animations(player: AnimationPlayer) -> Dictionary:
 		animations.append(str(anim_name))
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"count": animations.size(),
 		"animations": animations
 	})
@@ -631,7 +631,7 @@ func _play_animation(player: AnimationPlayer, anim_name: String, backwards: bool
 		player.play(anim_name)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"backwards": backwards
 	}, "Animation playing")
@@ -641,7 +641,7 @@ func _stop_animation(player: AnimationPlayer) -> Dictionary:
 	player.stop()
 
 	return _success({
-		"path": str(player.get_path())
+		"path": _get_scene_path(player)
 	}, "Animation stopped")
 
 
@@ -649,7 +649,7 @@ func _pause_animation(player: AnimationPlayer) -> Dictionary:
 	player.pause()
 
 	return _success({
-		"path": str(player.get_path())
+		"path": _get_scene_path(player)
 	}, "Animation paused")
 
 
@@ -657,7 +657,7 @@ func _seek_animation(player: AnimationPlayer, time: float) -> Dictionary:
 	player.seek(time)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"time": time
 	}, "Seeked to time")
 
@@ -667,7 +667,7 @@ func _get_current_animation(player: AnimationPlayer) -> Dictionary:
 	var playing = player.is_playing()
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"current_animation": str(current),
 		"is_playing": playing,
 		"current_position": player.current_animation_position if playing else 0.0,
@@ -679,7 +679,7 @@ func _set_playback_speed(player: AnimationPlayer, speed: float) -> Dictionary:
 	player.speed_scale = speed
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"speed": speed
 	}, "Playback speed set")
 
@@ -739,7 +739,7 @@ func _create_animation(player: AnimationPlayer, anim_name: String, length: float
 	library.add_animation(anim_name, anim)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"name": anim_name,
 		"length": length
 	}, "Animation created")
@@ -757,7 +757,7 @@ func _delete_animation(player: AnimationPlayer, anim_name: String) -> Dictionary
 		library.remove_animation(anim_name)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"name": anim_name
 	}, "Animation deleted")
 
@@ -785,7 +785,7 @@ func _duplicate_animation(player: AnimationPlayer, anim_name: String, new_name: 
 	library.add_animation(new_name, duplicate)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"original": anim_name,
 		"duplicate": new_name
 	}, "Animation duplicated")
@@ -808,7 +808,7 @@ func _rename_animation(player: AnimationPlayer, anim_name: String, new_name: Str
 		library.rename_animation(anim_name, new_name)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"old_name": anim_name,
 		"new_name": new_name
 	}, "Animation renamed")
@@ -824,7 +824,7 @@ func _get_animation_info(player: AnimationPlayer, anim_name: String) -> Dictiona
 	var anim = player.get_animation(anim_name)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"name": anim_name,
 		"length": anim.length,
 		"loop_mode": anim.loop_mode,
@@ -844,7 +844,7 @@ func _set_animation_length(player: AnimationPlayer, anim_name: String, length: f
 	anim.length = length
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"name": anim_name,
 		"length": length
 	}, "Animation length set")
@@ -861,7 +861,7 @@ func _set_animation_loop(player: AnimationPlayer, anim_name: String, loop: bool)
 	anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"name": anim_name,
 		"loop": loop
 	}, "Animation loop set")
@@ -926,7 +926,7 @@ func _list_tracks(player: AnimationPlayer, anim_name: String) -> Dictionary:
 		tracks.append(track_info)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"track_count": tracks.size(),
 		"tracks": tracks
@@ -945,7 +945,7 @@ func _add_property_track(player: AnimationPlayer, anim_name: String, node_path: 
 	anim.track_set_path(track_idx, NodePath(node_path))
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"track_index": track_idx,
 		"node_path": node_path
@@ -964,7 +964,7 @@ func _add_method_track(player: AnimationPlayer, anim_name: String, node_path: St
 	anim.track_set_path(track_idx, NodePath(node_path))
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"track_index": track_idx,
 		"node_path": node_path
@@ -983,7 +983,7 @@ func _remove_track(player: AnimationPlayer, anim_name: String, track_idx: int) -
 	anim.remove_track(track_idx)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"removed_track": track_idx
 	}, "Track removed")
@@ -1060,7 +1060,7 @@ func _add_key(player: AnimationPlayer, anim_name: String, track_idx: int, time: 
 			}, _get_value_hints_for_track(track_type, track_path))
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"track": track_idx,
 		"track_path": str(track_path),
@@ -1085,7 +1085,7 @@ func _remove_key(player: AnimationPlayer, anim_name: String, track_idx: int, key
 	anim.track_remove_key(track_idx, key_idx)
 
 	return _success({
-		"path": str(player.get_path()),
+		"path": _get_scene_path(player),
 		"animation": anim_name,
 		"track": track_idx,
 		"removed_key": key_idx
@@ -1397,7 +1397,7 @@ func _create_animation_tree(args: Dictionary) -> Dictionary:
 	tree.owner = parent.owner if parent.owner else parent
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"name": name,
 		"root_type": root_type
 	}, "AnimationTree created")
@@ -1433,7 +1433,7 @@ func _get_animation_tree(path: String) -> Dictionary:
 		root_type = tree.tree_root.get_class()
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"active": tree.active,
 		"root_type": root_type,
 		"anim_player": str(tree.anim_player) if tree.anim_player else "",
@@ -1453,7 +1453,7 @@ func _set_tree_active(path: String, active: bool) -> Dictionary:
 	tree.active = active
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"active": active
 	}, "AnimationTree %s" % ("activated" if active else "deactivated"))
 
@@ -1474,7 +1474,7 @@ func _set_tree_root(path: String, root_type: String) -> Dictionary:
 	tree.tree_root = root_node
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"root_type": root_type
 	}, "Root node set")
 
@@ -1500,7 +1500,7 @@ func _set_tree_player(path: String, player_path: String) -> Dictionary:
 	tree.anim_player = tree.get_path_to(player)
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"player": str(tree.anim_player)
 	}, "AnimationPlayer assigned")
 
@@ -1524,7 +1524,7 @@ func _set_tree_parameter(path: String, parameter: String, value) -> Dictionary:
 	tree.set(parameter, converted_value)
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"parameter": parameter,
 		"value": _serialize_value(converted_value)
 	}, "Parameter set")
@@ -1551,7 +1551,7 @@ func _get_tree_parameters(path: String) -> Dictionary:
 			})
 
 	return _success({
-		"path": str(tree.get_path()),
+		"path": _get_scene_path(tree),
 		"count": params.size(),
 		"parameters": params
 	})

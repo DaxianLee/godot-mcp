@@ -180,7 +180,7 @@ func _get_signal_info(path: String, signal_name: String) -> Dictionary:
 
 	for conn in connections:
 		conn_list.append({
-			"target": str(conn["callable"].get_object().get_path()) if conn["callable"].get_object() else "",
+			"target": _get_scene_path(conn["callable"].get_object()) if conn["callable"].get_object() else "",
 			"method": conn["callable"].get_method(),
 			"flags": conn["flags"]
 		})
@@ -213,7 +213,7 @@ func _list_connections(path: String, signal_name: String) -> Dictionary:
 	for conn in connections:
 		var target_obj = conn["callable"].get_object()
 		conn_list.append({
-			"target_path": str(target_obj.get_path()) if target_obj and target_obj is Node else "",
+			"target_path": _get_scene_path(target_obj) if target_obj and target_obj is Node else "",
 			"target_object": str(target_obj) if target_obj else "",
 			"method": conn["callable"].get_method(),
 			"flags": conn["flags"]
@@ -417,9 +417,9 @@ func _collect_connections(node: Node, result: Array[Dictionary]) -> void:
 		for conn in connections:
 			var target_obj = conn["callable"].get_object()
 			result.append({
-				"source": str(node.get_path()),
+				"source": _get_scene_path(node),
 				"signal": sig["name"],
-				"target": str(target_obj.get_path()) if target_obj and target_obj is Node else str(target_obj),
+				"target": _get_scene_path(target_obj) if target_obj and target_obj is Node else str(target_obj),
 				"method": conn["callable"].get_method()
 			})
 

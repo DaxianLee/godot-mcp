@@ -404,7 +404,7 @@ func _execute_tilemap(args: Dictionary) -> Dictionary:
 
 func _get_tilemap_info(tilemap: TileMap) -> Dictionary:
 	var info = {
-		"path": str(tilemap.get_path()),
+		"path": _get_scene_path(tilemap),
 		"layers_count": tilemap.get_layers_count(),
 		"has_tileset": tilemap.tile_set != null
 	}

@@ -194,7 +194,7 @@ func _get_nodes_in_group(group: String) -> Dictionary:
 
 	for node in nodes:
 		node_list.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": node.get_class(),
 			"name": node.name
 		})

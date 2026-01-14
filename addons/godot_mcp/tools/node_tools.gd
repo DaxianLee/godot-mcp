@@ -565,7 +565,7 @@ func _get_node_info(path: String) -> Dictionary:
 
 	# Owner
 	var owner = node.owner
-	info["owner"] = str(owner.get_path()) if owner else null
+	info["owner"] = _get_scene_path(owner) if owner else null
 
 	return _success(info)
 
@@ -657,7 +657,7 @@ func _create_node(type_name: String, node_name: String, parent_path: String) -> 
 	node.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"type": type_name,
 		"name": str(node.name)
 	}, "Node created: %s" % str(node.name))
@@ -710,7 +710,7 @@ func _duplicate_node(path: String, new_name: String, flags: Array) -> Dictionary
 
 	return _success({
 		"original": path,
-		"new_path": str(duplicated.get_path()),
+		"new_path": _get_scene_path(duplicated),
 		"name": str(duplicated.name)
 	}, "Node duplicated: %s" % str(duplicated.name))
 
@@ -746,7 +746,7 @@ func _instantiate_scene(scene_path: String, parent_path: String, instance_name: 
 
 	return _success({
 		"scene": scene_path,
-		"path": str(instance.get_path()),
+		"path": _get_scene_path(instance),
 		"name": str(instance.name)
 	}, "Scene instantiated: %s" % str(instance.name))
 
@@ -767,7 +767,7 @@ func _replace_node(path: String, new_node_path: String) -> Dictionary:
 
 	return _success({
 		"replaced": path,
-		"replacement": str(new_node.get_path())
+		"replacement": _get_scene_path(new_node)
 	}, "Node replaced")
 
 
@@ -831,7 +831,7 @@ func _set_position(node: Node, args: Dictionary) -> Dictionary:
 		return _error("Node does not support position")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"position": _get_position_dict(node),
 		"global": use_global
 	}, "Position set")
@@ -863,7 +863,7 @@ func _set_rotation(node: Node, radians: float, args: Dictionary) -> Dictionary:
 		return _error("Node does not support rotation")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"rotation": _get_rotation_dict(node)
 	}, "Rotation set")
 
@@ -883,13 +883,13 @@ func _set_scale(node: Node, args: Dictionary) -> Dictionary:
 		return _error("Node does not support scale")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"scale": _get_scale_dict(node)
 	}, "Scale set")
 
 
 func _get_transform(node: Node) -> Dictionary:
-	var result = {"path": str(node.get_path())}
+	var result = {"path": _get_scene_path(node)}
 
 	if node is Node2D:
 		result["position"] = {"x": node.position.x, "y": node.position.y}
@@ -930,7 +930,7 @@ func _move_node(node: Node, args: Dictionary) -> Dictionary:
 		return _error("Node does not support position")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"new_position": _get_position_dict(node)
 	}, "Node moved")
 
@@ -950,7 +950,7 @@ func _rotate_node(node: Node, args: Dictionary) -> Dictionary:
 		return _error("Node does not support rotation")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"new_rotation": _get_rotation_dict(node)
 	}, "Node rotated")
 
@@ -968,7 +968,7 @@ func _look_at(node: Node, args: Dictionary) -> Dictionary:
 		return _error("Node does not support look_at")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"looking_at": {"x": x, "y": y, "z": z}
 	}, "Node looking at target")
 
@@ -989,7 +989,7 @@ func _reset_transform(node: Node) -> Dictionary:
 	else:
 		return _error("Node does not support transform")
 
-	return _success({"path": str(node.get_path())}, "Transform reset")
+	return _success({"path": _get_scene_path(node)}, "Transform reset")
 
 
 func _get_position_dict(node: Node) -> Dictionary:
@@ -1100,7 +1100,7 @@ func _set_property(node: Node, property: String, value) -> Dictionary:
 		"property": property,
 		"old_value": old_value,
 		"new_value": new_value,
-		"node_path": str(node.get_path()),
+		"node_path": _get_scene_path(node),
 		"node_type": str(node.get_class())
 	}, "Property set: %s" % property)
 
@@ -1138,7 +1138,7 @@ func _list_properties(node: Node, filter: String) -> Dictionary:
 		properties.append(prop_data)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"type": str(node.get_class()),
 		"count": properties.size(),
 		"properties": properties
@@ -1211,12 +1211,12 @@ func _reparent_node(node: Node, new_parent_path: String, keep_global: bool) -> D
 	if node == _get_edited_scene_root():
 		return _error("Cannot reparent scene root")
 
-	var old_parent_path = str(node.get_parent().get_path())
+	var old_parent_path = _get_scene_path(node.get_parent())
 	node.reparent(new_parent, keep_global)
 	node.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"old_parent": old_parent_path,
 		"new_parent": new_parent_path,
 		"keep_global": keep_global
@@ -1231,7 +1231,7 @@ func _reorder_node(node: Node, index: int) -> Dictionary:
 	parent.move_child(node, index)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"new_index": node.get_index()
 	}, "Node reordered")
 
@@ -1250,7 +1250,7 @@ func _move_sibling(node: Node, direction: int) -> Dictionary:
 	parent.move_child(node, new_index)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"old_index": current_index,
 		"new_index": node.get_index()
 	}, "Node moved")
@@ -1262,7 +1262,7 @@ func _move_to_front(node: Node) -> Dictionary:
 		return _error("Node has no parent")
 
 	parent.move_child(node, parent.get_child_count() - 1)
-	return _success({"path": str(node.get_path()), "new_index": node.get_index()}, "Node moved to front")
+	return _success({"path": _get_scene_path(node), "new_index": node.get_index()}, "Node moved to front")
 
 
 func _move_to_back(node: Node) -> Dictionary:
@@ -1271,7 +1271,7 @@ func _move_to_back(node: Node) -> Dictionary:
 		return _error("Node has no parent")
 
 	parent.move_child(node, 0)
-	return _success({"path": str(node.get_path()), "new_index": node.get_index()}, "Node moved to back")
+	return _success({"path": _get_scene_path(node), "new_index": node.get_index()}, "Node moved to back")
 
 
 func _set_owner(node: Node, owner_path: String) -> Dictionary:
@@ -1280,14 +1280,14 @@ func _set_owner(node: Node, owner_path: String) -> Dictionary:
 		return _error("Owner not found: %s" % owner_path)
 
 	node.owner = new_owner
-	return _success({"path": str(node.get_path()), "owner": str(new_owner.get_path())}, "Owner set")
+	return _success({"path": _get_scene_path(node), "owner": _get_scene_path(new_owner)}, "Owner set")
 
 
 func _get_owner(node: Node) -> Dictionary:
 	var owner = node.owner
 	return _success({
-		"path": str(node.get_path()),
-		"owner": str(owner.get_path()) if owner else null
+		"path": _get_scene_path(node),
+		"owner": _get_scene_path(owner) if owner else null
 	})
 
 
@@ -1355,7 +1355,7 @@ func _get_signal_connections(path: String, signal_name: String) -> Dictionary:
 		var target_obj = conn.callable.get_object()
 		connections.append({
 			"signal": str(conn.signal.get_name()),
-			"target": str(target_obj.get_path()) if target_obj and target_obj is Node else str(target_obj),
+			"target": _get_scene_path(target_obj) if target_obj and target_obj is Node else str(target_obj),
 			"method": str(conn.callable.get_method()),
 			"flags": conn.flags
 		})
@@ -1372,7 +1372,7 @@ func _get_incoming_connections(path: String) -> Dictionary:
 	for conn in node.get_incoming_connections():
 		var source_obj = conn.signal.get_object()
 		connections.append({
-			"source": str(source_obj.get_path()) if source_obj and source_obj is Node else str(source_obj),
+			"source": _get_scene_path(source_obj) if source_obj and source_obj is Node else str(source_obj),
 			"signal": str(conn.signal.get_name()),
 			"method": str(conn.callable.get_method())
 		})
@@ -1664,7 +1664,7 @@ func _get_nodes_in_group(group: String) -> Dictionary:
 	var result: Array[Dictionary] = []
 
 	for node in nodes:
-		result.append({"name": str(node.name), "path": str(node.get_path()), "type": str(node.get_class())})
+		result.append({"name": str(node.name), "path": _get_scene_path(node), "type": str(node.get_class())})
 
 	return _success({"group": group, "count": result.size(), "nodes": result})
 
@@ -1790,7 +1790,7 @@ func _execute_process(args: Dictionary) -> Dictionary:
 
 func _get_process_status(node: Node) -> Dictionary:
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"processing": node.is_processing(),
 		"physics_processing": node.is_physics_processing(),
 		"input_processing": node.is_processing_input(),
@@ -1813,7 +1813,7 @@ func _set_process_flag(node: Node, flag_type: String, enabled: bool) -> Dictiona
 		"unhandled_key_input": node.set_process_unhandled_key_input(enabled)
 		"shortcut_input": node.set_process_shortcut_input(enabled)
 
-	return _success({"path": str(node.get_path()), flag_type: enabled}, "Process flag set")
+	return _success({"path": _get_scene_path(node), flag_type: enabled}, "Process flag set")
 
 
 func _set_process_mode(node: Node, mode: String) -> Dictionary:
@@ -1828,17 +1828,17 @@ func _set_process_mode(node: Node, mode: String) -> Dictionary:
 
 	node.process_mode = mode_value
 
-	return _success({"path": str(node.get_path()), "process_mode": mode}, "Process mode set")
+	return _success({"path": _get_scene_path(node), "process_mode": mode}, "Process mode set")
 
 
 func _set_process_priority(node: Node, priority: int) -> Dictionary:
 	node.process_priority = priority
-	return _success({"path": str(node.get_path()), "process_priority": priority}, "Process priority set")
+	return _success({"path": _get_scene_path(node), "process_priority": priority}, "Process priority set")
 
 
 func _set_physics_priority(node: Node, priority: int) -> Dictionary:
 	node.process_physics_priority = priority
-	return _success({"path": str(node.get_path()), "physics_process_priority": priority}, "Physics process priority set")
+	return _success({"path": _get_scene_path(node), "physics_process_priority": priority}, "Physics process priority set")
 
 
 # ==================== METADATA ====================
@@ -1871,7 +1871,7 @@ func _get_metadata(node: Node, key: String) -> Dictionary:
 		return _error("Metadata not found: %s" % key)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"key": key,
 		"value": _serialize_value(node.get_meta(key))
 	})
@@ -1884,7 +1884,7 @@ func _set_metadata(node: Node, key: String, value) -> Dictionary:
 	node.set_meta(key, value)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"key": key,
 		"value": _serialize_value(value)
 	}, "Metadata set")
@@ -1895,7 +1895,7 @@ func _has_metadata(node: Node, key: String) -> Dictionary:
 		return _error("Key is required")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"key": key,
 		"exists": node.has_meta(key)
 	})
@@ -1910,7 +1910,7 @@ func _remove_metadata(node: Node, key: String) -> Dictionary:
 
 	node.remove_meta(key)
 
-	return _success({"path": str(node.get_path()), "key": key}, "Metadata removed")
+	return _success({"path": _get_scene_path(node), "key": key}, "Metadata removed")
 
 
 func _list_metadata(node: Node) -> Dictionary:
@@ -1919,7 +1919,7 @@ func _list_metadata(node: Node) -> Dictionary:
 		keys.append(str(key))
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"count": keys.size(),
 		"keys": keys
 	})
@@ -1965,7 +1965,7 @@ func _call_method(node: Node, method: String, args: Array) -> Dictionary:
 		_: return _error("Too many arguments (max 5)")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"method": method,
 		"result": _serialize_value(result)
 	}, "Method called")
@@ -1987,7 +1987,7 @@ func _call_method_deferred(node: Node, method: String, args: Array) -> Dictionar
 		_: return _error("Too many arguments (max 4)")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"method": method,
 		"deferred": true
 	}, "Method call deferred")
@@ -2000,7 +2000,7 @@ func _propagate_call(node: Node, method: String, args: Array, parent_first: bool
 	node.propagate_call(method, args, parent_first)
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"method": method,
 		"args_count": args.size(),
 		"parent_first": parent_first
@@ -2012,7 +2012,7 @@ func _has_method(node: Node, method: String) -> Dictionary:
 		return _error("Method name is required")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"method": method,
 		"exists": node.has_method(method)
 	})
@@ -2039,7 +2039,7 @@ func _get_method_list(node: Node, filter: String) -> Dictionary:
 		})
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"count": methods.size(),
 		"methods": methods
 	})
@@ -2080,16 +2080,16 @@ func _set_visible(node: Node, visible: bool) -> Dictionary:
 	else:
 		return _error("Node does not support visibility")
 
-	return _success({"path": str(node.get_path()), "visible": visible}, "Visibility set")
+	return _success({"path": _get_scene_path(node), "visible": visible}, "Visibility set")
 
 
 func _toggle_visible(node: Node) -> Dictionary:
 	if node is CanvasItem:
 		node.visible = not node.visible
-		return _success({"path": str(node.get_path()), "visible": node.visible}, "Visibility toggled")
+		return _success({"path": _get_scene_path(node), "visible": node.visible}, "Visibility toggled")
 	elif node is Node3D:
 		node.visible = not node.visible
-		return _success({"path": str(node.get_path()), "visible": node.visible}, "Visibility toggled")
+		return _success({"path": _get_scene_path(node), "visible": node.visible}, "Visibility toggled")
 	else:
 		return _error("Node does not support visibility")
 
@@ -2108,7 +2108,7 @@ func _is_visible(node: Node) -> Dictionary:
 		return _error("Node does not support visibility")
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"visible": visible,
 		"visible_in_tree": visible_in_tree
 	})
@@ -2119,7 +2119,7 @@ func _set_z_index(node: Node, z_index: int) -> Dictionary:
 		return _error("Node is not a CanvasItem")
 
 	node.z_index = z_index
-	return _success({"path": str(node.get_path()), "z_index": z_index}, "Z index set")
+	return _success({"path": _get_scene_path(node), "z_index": z_index}, "Z index set")
 
 
 func _set_z_relative(node: Node, enabled: bool) -> Dictionary:
@@ -2127,7 +2127,7 @@ func _set_z_relative(node: Node, enabled: bool) -> Dictionary:
 		return _error("Node is not a CanvasItem")
 
 	node.z_as_relative = enabled
-	return _success({"path": str(node.get_path()), "z_as_relative": enabled}, "Z relative set")
+	return _success({"path": _get_scene_path(node), "z_as_relative": enabled}, "Z relative set")
 
 
 func _set_y_sort(node: Node, enabled: bool) -> Dictionary:
@@ -2135,7 +2135,7 @@ func _set_y_sort(node: Node, enabled: bool) -> Dictionary:
 		return _error("Node is not a CanvasItem")
 
 	node.y_sort_enabled = enabled
-	return _success({"path": str(node.get_path()), "y_sort_enabled": enabled}, "Y sort set")
+	return _success({"path": _get_scene_path(node), "y_sort_enabled": enabled}, "Y sort set")
 
 
 func _set_modulate(node: Node, color_dict: Dictionary) -> Dictionary:
@@ -2151,7 +2151,7 @@ func _set_modulate(node: Node, color_dict: Dictionary) -> Dictionary:
 	node.modulate = color
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"modulate": {"r": color.r, "g": color.g, "b": color.b, "a": color.a}
 	}, "Modulate set")
 
@@ -2169,7 +2169,7 @@ func _set_self_modulate(node: Node, color_dict: Dictionary) -> Dictionary:
 	node.self_modulate = color
 
 	return _success({
-		"path": str(node.get_path()),
+		"path": _get_scene_path(node),
 		"self_modulate": {"r": color.r, "g": color.g, "b": color.b, "a": color.a}
 	}, "Self modulate set")
 
@@ -2182,7 +2182,7 @@ func _set_visibility_layer(node: Node, layer: int) -> Dictionary:
 	else:
 		return _error("Node does not support visibility layers")
 
-	return _success({"path": str(node.get_path()), "visibility_layer": layer}, "Visibility layer set")
+	return _success({"path": _get_scene_path(node), "visibility_layer": layer}, "Visibility layer set")
 
 
 # ==================== PHYSICS ====================
@@ -2213,7 +2213,7 @@ func _execute_physics(args: Dictionary) -> Dictionary:
 
 
 func _get_collision_info(node: Node) -> Dictionary:
-	var info = {"path": str(node.get_path())}
+	var info = {"path": _get_scene_path(node)}
 
 	if node is CollisionObject2D:
 		info["collision_layer"] = node.collision_layer
@@ -2247,7 +2247,7 @@ func _set_collision_layer(node: Node, value: int) -> Dictionary:
 	else:
 		return _error("Node is not a collision object")
 
-	return _success({"path": str(node.get_path()), "collision_layer": value}, "Collision layer set")
+	return _success({"path": _get_scene_path(node), "collision_layer": value}, "Collision layer set")
 
 
 func _set_collision_mask(node: Node, value: int) -> Dictionary:
@@ -2258,7 +2258,7 @@ func _set_collision_mask(node: Node, value: int) -> Dictionary:
 	else:
 		return _error("Node is not a collision object")
 
-	return _success({"path": str(node.get_path()), "collision_mask": value}, "Collision mask set")
+	return _success({"path": _get_scene_path(node), "collision_mask": value}, "Collision mask set")
 
 
 func _set_collision_layer_value(node: Node, layer: int, value: bool) -> Dictionary:
@@ -2272,7 +2272,7 @@ func _set_collision_layer_value(node: Node, layer: int, value: bool) -> Dictiona
 	else:
 		return _error("Node is not a collision object")
 
-	return _success({"path": str(node.get_path()), "layer": layer, "value": value}, "Collision layer value set")
+	return _success({"path": _get_scene_path(node), "layer": layer, "value": value}, "Collision layer value set")
 
 
 func _set_collision_mask_value(node: Node, layer: int, value: bool) -> Dictionary:
@@ -2286,7 +2286,7 @@ func _set_collision_mask_value(node: Node, layer: int, value: bool) -> Dictionar
 	else:
 		return _error("Node is not a collision object")
 
-	return _success({"path": str(node.get_path()), "layer": layer, "value": value}, "Collision mask value set")
+	return _success({"path": _get_scene_path(node), "layer": layer, "value": value}, "Collision mask value set")
 
 
 func _apply_impulse(node: Node, args: Dictionary) -> Dictionary:
@@ -2301,7 +2301,7 @@ func _apply_impulse(node: Node, args: Dictionary) -> Dictionary:
 	else:
 		return _error("Node is not a RigidBody")
 
-	return _success({"path": str(node.get_path()), "impulse": {"x": x, "y": y, "z": z}}, "Impulse applied")
+	return _success({"path": _get_scene_path(node), "impulse": {"x": x, "y": y, "z": z}}, "Impulse applied")
 
 
 func _apply_force(node: Node, args: Dictionary) -> Dictionary:
@@ -2316,7 +2316,7 @@ func _apply_force(node: Node, args: Dictionary) -> Dictionary:
 	else:
 		return _error("Node is not a RigidBody")
 
-	return _success({"path": str(node.get_path()), "force": {"x": x, "y": y, "z": z}}, "Force applied")
+	return _success({"path": _get_scene_path(node), "force": {"x": x, "y": y, "z": z}}, "Force applied")
 
 
 func _apply_torque(node: Node, args: Dictionary) -> Dictionary:
@@ -2332,7 +2332,7 @@ func _apply_torque(node: Node, args: Dictionary) -> Dictionary:
 	else:
 		return _error("Node is not a RigidBody")
 
-	return _success({"path": str(node.get_path()), "torque": torque}, "Torque applied")
+	return _success({"path": _get_scene_path(node), "torque": torque}, "Torque applied")
 
 
 func _set_linear_velocity(node: Node, args: Dictionary) -> Dictionary:
@@ -2351,7 +2351,7 @@ func _set_linear_velocity(node: Node, args: Dictionary) -> Dictionary:
 	else:
 		return _error("Node does not support velocity")
 
-	return _success({"path": str(node.get_path()), "velocity": {"x": x, "y": y, "z": z}}, "Velocity set")
+	return _success({"path": _get_scene_path(node), "velocity": {"x": x, "y": y, "z": z}}, "Velocity set")
 
 
 func _set_angular_velocity(node: Node, args: Dictionary) -> Dictionary:
@@ -2367,7 +2367,7 @@ func _set_angular_velocity(node: Node, args: Dictionary) -> Dictionary:
 	else:
 		return _error("Node is not a RigidBody")
 
-	return _success({"path": str(node.get_path()), "angular_velocity": value}, "Angular velocity set")
+	return _success({"path": _get_scene_path(node), "angular_velocity": value}, "Angular velocity set")
 
 
 # ==================== HELPERS ====================

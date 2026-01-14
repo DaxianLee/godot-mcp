@@ -304,7 +304,7 @@ func _create_light(args: Dictionary) -> Dictionary:
 	light.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(light.get_path()),
+		"path": _get_scene_path(light),
 		"type": light_type,
 		"name": node_name
 	}, "Light created")
@@ -491,7 +491,7 @@ func _list_lights() -> Dictionary:
 func _find_lights(node: Node, result: Array[Dictionary]) -> void:
 	if node is Light3D or node is Light2D:
 		var info = {
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": node.get_class()
 		}
 		if node is Light3D:
@@ -564,7 +564,7 @@ func _create_environment(parent_path: String) -> Dictionary:
 	world_env.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(world_env.get_path())
+		"path": _get_scene_path(world_env)
 	}, "WorldEnvironment created with default sky")
 
 

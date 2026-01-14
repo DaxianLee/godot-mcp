@@ -160,7 +160,7 @@ func _list_regions(mode: String) -> Dictionary:
 func _find_navigation_regions(node: Node, result: Array[Dictionary], mode: String) -> void:
 	if node is NavigationRegion3D and (mode == "3d" or mode.is_empty()):
 		result.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": "NavigationRegion3D",
 			"enabled": node.enabled,
 			"has_mesh": node.navigation_mesh != null,
@@ -168,7 +168,7 @@ func _find_navigation_regions(node: Node, result: Array[Dictionary], mode: Strin
 		})
 	elif node is NavigationRegion2D and (mode == "2d" or mode.is_empty()):
 		result.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": "NavigationRegion2D",
 			"enabled": node.enabled,
 			"has_polygon": node.navigation_polygon != null,
@@ -196,7 +196,7 @@ func _list_agents(mode: String) -> Dictionary:
 func _find_navigation_agents(node: Node, result: Array[Dictionary], mode: String) -> void:
 	if node is NavigationAgent3D and (mode == "3d" or mode.is_empty()):
 		result.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": "NavigationAgent3D",
 			"target_position": _serialize_value(node.target_position),
 			"radius": node.radius,
@@ -207,7 +207,7 @@ func _find_navigation_agents(node: Node, result: Array[Dictionary], mode: String
 		})
 	elif node is NavigationAgent2D and (mode == "2d" or mode.is_empty()):
 		result.append({
-			"path": str(node.get_path()),
+			"path": _get_scene_path(node),
 			"type": "NavigationAgent2D",
 			"target_position": _serialize_value(node.target_position),
 			"radius": node.radius,

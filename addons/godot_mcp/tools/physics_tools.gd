@@ -12,7 +12,7 @@ func get_tools() -> Array[Dictionary]:
 			"description": """PHYSICS BODIES: Create and configure physics bodies.
 
 ACTIONS:
-- create: Create a physics body (RigidBody2D/3D, CharacterBody2D/3D, StaticBody2D/3D, Area2D/3D)
+- create: Create a physics body (specify 2D or 3D type explicitly)
 - get_info: Get physics body information
 - set_mode: Set body mode (static, kinematic, rigid, rigid_linear)
 - set_mass: Set body mass
@@ -25,16 +25,29 @@ ACTIONS:
 - set_mask: Set collision mask
 - freeze: Freeze/unfreeze body
 
-BODY TYPES:
-- rigid_body_2d/3d: Dynamic physics body
-- character_body_2d/3d: Kinematic body for characters
-- static_body_2d/3d: Immovable collision body
-- area_2d/3d: Detection zone (no collision response)
+BODY TYPES (3D):
+- rigid_body_3d: Dynamic physics body with mass
+- character_body_3d: Kinematic body for player/NPC movement
+- static_body_3d: Immovable collision body (walls, floors)
+- area_3d: Detection zone (triggers, no collision response)
 
-EXAMPLES:
-- Create body: {"action": "create", "type": "rigid_body_3d", "parent": "/root/Scene", "name": "Ball"}
-- Set mass: {"action": "set_mass", "path": "/root/Ball", "mass": 5.0}
-- Apply force: {"action": "apply_force", "path": "/root/Ball", "force": {"x": 0, "y": 100, "z": 0}}""",
+BODY TYPES (2D):
+- rigid_body_2d: Dynamic physics body with mass
+- character_body_2d: Kinematic body for player/NPC movement
+- static_body_2d: Immovable collision body (platforms, walls)
+- area_2d: Detection zone (triggers, no collision response)
+
+EXAMPLES (3D):
+- Create RigidBody3D: {"action": "create", "type": "rigid_body_3d", "parent": "Scene", "name": "Ball"}
+- Create CharacterBody3D: {"action": "create", "type": "character_body_3d", "parent": "Scene", "name": "Player"}
+- Set mass: {"action": "set_mass", "path": "Ball", "mass": 5.0}
+- Apply force 3D: {"action": "apply_force", "path": "Ball", "force": {"x": 0, "y": 100, "z": 0}}
+
+EXAMPLES (2D):
+- Create RigidBody2D: {"action": "create", "type": "rigid_body_2d", "parent": "Scene", "name": "Ball"}
+- Create CharacterBody2D: {"action": "create", "type": "character_body_2d", "parent": "Scene", "name": "Player"}
+- Apply force 2D: {"action": "apply_force", "path": "Ball", "force": {"x": 0, "y": -500}}
+- Apply impulse 2D: {"action": "apply_impulse", "path": "Ball", "impulse": {"x": 100, "y": 0}}""",
 			"inputSchema": {
 				"type": "object",
 				"properties": {
@@ -110,17 +123,21 @@ EXAMPLES:
 			"description": """COLLISION SHAPES: Manage collision shapes for physics bodies.
 
 ACTIONS:
-- create: Create a collision shape
+- create: Create a collision shape (auto-detects 2D/3D based on parent)
 - get_info: Get shape information
 - set_shape: Set shape resource
 - set_disabled: Enable/disable shape
-- create_box: Create box shape
-- create_sphere: Create sphere shape
+- create_box: Create box shape (BoxShape3D or RectangleShape2D)
+- create_sphere: Create sphere shape (SphereShape3D or CircleShape2D)
 - create_capsule: Create capsule shape
 - create_cylinder: Create cylinder shape (3D only)
 - create_polygon: Create polygon shape (2D only)
 - set_size: Set shape size
 - make_convex_from_siblings: Create convex shape from sibling meshes
+
+MODE DETECTION:
+- Auto-detects 2D/3D based on parent node type (Node2D -> 2D, Node3D -> 3D)
+- Use "mode": "2d" or "mode": "3d" to override auto-detection
 
 SHAPE TYPES (3D):
 - BoxShape3D, SphereShape3D, CapsuleShape3D, CylinderShape3D
@@ -130,10 +147,17 @@ SHAPE TYPES (2D):
 - RectangleShape2D, CircleShape2D, CapsuleShape2D
 - ConvexPolygonShape2D, ConcavePolygonShape2D, SegmentShape2D
 
-EXAMPLES:
-- Create shape: {"action": "create", "parent": "/root/Ball", "name": "CollisionShape3D"}
-- Create sphere: {"action": "create_sphere", "path": "/root/Ball/CollisionShape3D", "radius": 0.5}
-- Create box: {"action": "create_box", "path": "/root/Box/CollisionShape3D", "size": {"x": 1, "y": 1, "z": 1}}""",
+EXAMPLES (3D):
+- Create 3D shape (auto): {"action": "create", "parent": "Player3D"}
+- Create 3D shape (explicit): {"action": "create", "parent": "Player", "mode": "3d"}
+- Create sphere 3D: {"action": "create_sphere", "path": "Ball/CollisionShape3D", "radius": 0.5}
+- Create box 3D: {"action": "create_box", "path": "Box/CollisionShape3D", "size": {"x": 1, "y": 1, "z": 1}}
+
+EXAMPLES (2D):
+- Create 2D shape (auto): {"action": "create", "parent": "Player2D"}
+- Create 2D shape (explicit): {"action": "create", "parent": "Player", "mode": "2d"}
+- Create circle 2D: {"action": "create_sphere", "path": "Ball/CollisionShape2D", "radius": 32}
+- Create rect 2D: {"action": "create_box", "path": "Box/CollisionShape2D", "size": {"x": 64, "y": 64}}""",
 			"inputSchema": {
 				"type": "object",
 				"properties": {
@@ -188,7 +212,7 @@ EXAMPLES:
 			"description": """PHYSICS JOINTS: Create and configure joints between physics bodies.
 
 ACTIONS:
-- create: Create a joint node
+- create: Create a joint node (specify 2D or 3D type explicitly)
 - get_info: Get joint information
 - set_nodes: Set connected nodes (node_a, node_b)
 - set_param: Set joint parameter
@@ -196,20 +220,25 @@ ACTIONS:
 
 JOINT TYPES (3D):
 - pin_joint_3d: Point-to-point connection
-- hinge_joint_3d: Single axis rotation
-- slider_joint_3d: Linear sliding
-- cone_twist_joint_3d: Ball and socket
-- generic_6dof_joint_3d: Six degrees of freedom
+- hinge_joint_3d: Single axis rotation (doors, wheels)
+- slider_joint_3d: Linear sliding (pistons, elevators)
+- cone_twist_joint_3d: Ball and socket (shoulders, hips)
+- generic_6dof_joint_3d: Six degrees of freedom (full control)
 
 JOINT TYPES (2D):
-- pin_joint_2d: Point-to-point
-- groove_joint_2d: Groove sliding
-- damped_spring_joint_2d: Spring connection
+- pin_joint_2d: Point-to-point connection
+- groove_joint_2d: Groove sliding (slider puzzles)
+- damped_spring_joint_2d: Spring connection (bouncy platforms)
 
-EXAMPLES:
-- Create joint: {"action": "create", "type": "hinge_joint_3d", "parent": "/root/Scene"}
-- Set nodes: {"action": "set_nodes", "path": "/root/HingeJoint3D", "node_a": "/root/BodyA", "node_b": "/root/BodyB"}
-- Set param: {"action": "set_param", "path": "/root/HingeJoint3D", "param": "angular_limit/lower", "value": -45}""",
+EXAMPLES (3D):
+- Create hinge: {"action": "create", "type": "hinge_joint_3d", "parent": "Scene", "name": "DoorHinge"}
+- Set nodes 3D: {"action": "set_nodes", "path": "DoorHinge", "node_a": "Wall", "node_b": "Door"}
+- Set param: {"action": "set_param", "path": "DoorHinge", "param": "angular_limit/lower", "value": -90}
+
+EXAMPLES (2D):
+- Create pin: {"action": "create", "type": "pin_joint_2d", "parent": "Scene", "name": "Pivot"}
+- Create spring: {"action": "create", "type": "damped_spring_joint_2d", "parent": "Scene", "name": "Spring"}
+- Set nodes 2D: {"action": "set_nodes", "path": "Pivot", "node_a": "Anchor", "node_b": "Pendulum"}""",
 			"inputSchema": {
 				"type": "object",
 				"properties": {
@@ -266,16 +295,24 @@ ACTIONS:
 - get_rest_info: Get collision rest information
 - list_bodies_in_area: List all bodies in an Area node
 
+MODE PARAMETER:
+- Use "mode": "2d" for 2D physics queries
+- Use "mode": "3d" for 3D physics queries (default)
+
 QUERY OPTIONS:
 - collision_mask: Filter by collision layers
 - exclude: Array of RIDs or nodes to exclude
 - collide_with_bodies: Include physics bodies
 - collide_with_areas: Include areas
 
-EXAMPLES:
-- Raycast: {"action": "raycast", "from": {"x": 0, "y": 10, "z": 0}, "to": {"x": 0, "y": -10, "z": 0}, "mode": "3d"}
-- Point check: {"action": "point_check", "point": {"x": 5, "y": 5}, "mode": "2d"}
-- Area bodies: {"action": "list_bodies_in_area", "path": "/root/DetectionArea"}""",
+EXAMPLES (3D):
+- Raycast down: {"action": "raycast", "from": {"x": 0, "y": 10, "z": 0}, "to": {"x": 0, "y": -10, "z": 0}, "mode": "3d"}
+- Raycast forward: {"action": "raycast", "from": {"x": 0, "y": 1, "z": 0}, "to": {"x": 0, "y": 1, "z": 10}, "mode": "3d"}
+
+EXAMPLES (2D):
+- Raycast down: {"action": "raycast", "from": {"x": 100, "y": 0}, "to": {"x": 100, "y": 500}, "mode": "2d"}
+- Point check: {"action": "point_check", "point": {"x": 200, "y": 300}, "mode": "2d"}
+- Area bodies: {"action": "list_bodies_in_area", "path": "DetectionArea2D"}""",
 			"inputSchema": {
 				"type": "object",
 				"properties": {
@@ -336,6 +373,26 @@ func execute(tool_name: String, args: Dictionary) -> Dictionary:
 			return _execute_physics_query(args)
 		_:
 			return _error("Unknown tool: %s" % tool_name)
+
+
+func _detect_dimension_mode(node: Node) -> String:
+	"""Auto-detect 2D or 3D mode based on node type.
+
+	Checks the node and its ancestors to determine if we're in a 2D or 3D context.
+	Returns "2d" or "3d" (defaults to "3d" if cannot determine).
+	"""
+	var current = node
+	while current:
+		# Check for 2D physics/canvas nodes
+		if current is CollisionObject2D or current is Node2D or current is CanvasItem:
+			return "2d"
+		# Check for 3D physics/spatial nodes
+		if current is CollisionObject3D or current is Node3D:
+			return "3d"
+		current = current.get_parent()
+
+	# Default to 3D if cannot determine
+	return "3d"
 
 
 func _execute_physics_body(args: Dictionary) -> Dictionary:
@@ -413,7 +470,7 @@ func _create_physics_body(args: Dictionary) -> Dictionary:
 	body.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(body.get_path()),
+		"path": _get_scene_path(body),
 		"type": body_type,
 		"name": node_name
 	}, "Physics body created")
@@ -623,7 +680,7 @@ func _execute_collision_shape(args: Dictionary) -> Dictionary:
 func _create_collision_shape(args: Dictionary) -> Dictionary:
 	var parent_path = args.get("parent", "")
 	var node_name = args.get("name", "")
-	var mode = args.get("mode", "3d")
+	var mode = args.get("mode", "")  # Empty means auto-detect
 
 	if parent_path.is_empty():
 		return _error("Parent path is required")
@@ -631,6 +688,10 @@ func _create_collision_shape(args: Dictionary) -> Dictionary:
 	var parent = _find_node_by_path(parent_path)
 	if not parent:
 		return _error("Parent not found: %s" % parent_path)
+
+	# Auto-detect mode based on parent node type if not specified
+	if mode.is_empty():
+		mode = _detect_dimension_mode(parent)
 
 	var shape: Node
 	if mode == "2d":
@@ -646,11 +707,31 @@ func _create_collision_shape(args: Dictionary) -> Dictionary:
 	parent.add_child(shape)
 	shape.owner = _get_edited_scene_root()
 
+	# Prepare shape type suggestions based on mode
+	var shape_actions = []
+	if mode == "2d":
+		shape_actions = [
+			"create_box (RectangleShape2D)",
+			"create_sphere (CircleShape2D)",
+			"create_capsule (CapsuleShape2D)",
+			"create_polygon (ConvexPolygonShape2D)"
+		]
+	else:
+		shape_actions = [
+			"create_box (BoxShape3D)",
+			"create_sphere (SphereShape3D)",
+			"create_capsule (CapsuleShape3D)",
+			"create_cylinder (CylinderShape3D)"
+		]
+
 	return _success({
-		"path": str(shape.get_path()),
+		"path": _get_scene_path(shape),
 		"mode": mode,
-		"name": node_name
-	}, "Collision shape created")
+		"name": node_name,
+		"warning": "CollisionShape has no shape! It will not detect collisions until a shape is assigned.",
+		"next_step": "You MUST set a shape using one of these actions: %s" % ", ".join(shape_actions),
+		"example": {"action": "create_box", "path": _get_scene_path(shape), "size": {"x": 1, "y": 1} if mode == "2d" else {"x": 1, "y": 1, "z": 1}}
+	}, "Collision shape node created. WARNING: You must assign a shape resource for collision to work!")
 
 
 func _get_shape_info(path: String) -> Dictionary:
@@ -930,7 +1011,7 @@ func _make_convex_from_siblings(path: String) -> Dictionary:
 
 	return _success({
 		"path": path,
-		"mesh_source": str(mesh_instance.get_path())
+		"mesh_source": _get_scene_path(mesh_instance)
 	}, "Convex shape created from mesh")
 
 
@@ -995,7 +1076,7 @@ func _create_joint(args: Dictionary) -> Dictionary:
 	joint.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(joint.get_path()),
+		"path": _get_scene_path(joint),
 		"type": joint_type,
 		"name": node_name
 	}, "Joint created")
@@ -1148,7 +1229,7 @@ func _do_raycast(args: Dictionary) -> Dictionary:
 			"to": _serialize_value(to),
 			"position": _serialize_value(result.position),
 			"normal": _serialize_value(result.normal),
-			"collider": str(result.collider.get_path()) if result.collider else "",
+			"collider": _get_scene_path(result.collider) if result.collider else "",
 			"collider_id": result.collider_id
 		})
 	else:
@@ -1175,7 +1256,7 @@ func _do_raycast(args: Dictionary) -> Dictionary:
 			"to": _serialize_value(to),
 			"position": _serialize_value(result.position),
 			"normal": _serialize_value(result.normal),
-			"collider": str(result.collider.get_path()) if result.collider else "",
+			"collider": _get_scene_path(result.collider) if result.collider else "",
 			"collider_id": result.collider_id
 		})
 
@@ -1206,7 +1287,7 @@ func _do_point_check(args: Dictionary) -> Dictionary:
 
 		for r in results:
 			hits.append({
-				"collider": str(r.collider.get_path()) if r.collider else "",
+				"collider": _get_scene_path(r.collider) if r.collider else "",
 				"collider_id": r.collider_id,
 				"shape": r.shape
 			})
@@ -1236,13 +1317,13 @@ func _list_bodies_in_area(path: String) -> Dictionary:
 	if node is Area3D:
 		for body in node.get_overlapping_bodies():
 			bodies.append({
-				"path": str(body.get_path()),
+				"path": _get_scene_path(body),
 				"type": body.get_class()
 			})
 	else:
 		for body in node.get_overlapping_bodies():
 			bodies.append({
-				"path": str(body.get_path()),
+				"path": _get_scene_path(body),
 				"type": body.get_class()
 			})
 

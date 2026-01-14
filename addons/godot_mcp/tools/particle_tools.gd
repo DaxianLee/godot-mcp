@@ -265,7 +265,7 @@ func _create_particles(args: Dictionary) -> Dictionary:
 	particles.owner = _get_edited_scene_root()
 
 	return _success({
-		"path": str(particles.get_path()),
+		"path": _get_scene_path(particles),
 		"type": particle_type,
 		"name": node_name
 	}, "Particle emitter created")
@@ -402,7 +402,7 @@ func _convert_to_cpu(path: String) -> Dictionary:
 		cpu.global_transform = node.global_transform
 		return _success({
 			"original": path,
-			"cpu_path": str(cpu.get_path())
+			"cpu_path": _get_scene_path(cpu)
 		}, "Converted to CPUParticles3D")
 	elif node is GPUParticles2D:
 		var cpu = CPUParticles2D.new()
@@ -413,7 +413,7 @@ func _convert_to_cpu(path: String) -> Dictionary:
 		cpu.global_transform = node.global_transform
 		return _success({
 			"original": path,
-			"cpu_path": str(cpu.get_path())
+			"cpu_path": _get_scene_path(cpu)
 		}, "Converted to CPUParticles2D")
 
 	return _error("Node is not a GPUParticles node")

@@ -630,7 +630,7 @@ func _execute_control(args: Dictionary) -> Dictionary:
 
 func _get_control_layout(control: Control) -> Dictionary:
 	return _success({
-		"path": str(control.get_path()),
+		"path": _get_scene_path(control),
 		"position": _serialize_value(control.position),
 		"size": _serialize_value(control.size),
 		"global_position": _serialize_value(control.global_position),
@@ -798,7 +798,7 @@ func _arrange_children(control: Control, args: Dictionary) -> Dictionary:
 	if control is Container:
 		control.queue_sort()
 		return _success({
-			"path": str(control.get_path()),
+			"path": _get_scene_path(control),
 			"child_count": control.get_child_count()
 		}, "Children arranged")
 

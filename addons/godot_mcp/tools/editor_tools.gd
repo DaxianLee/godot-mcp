@@ -963,7 +963,7 @@ func _get_edited_object(ei: EditorInterface) -> Dictionary:
 	}
 
 	if edited is Node:
-		info["path"] = str(edited.get_path())
+		info["path"] = _get_scene_path(edited)
 		info["name"] = str(edited.name)
 	elif edited is Resource:
 		info["resource_path"] = str(edited.resource_path)
