@@ -654,14 +654,35 @@ func _create_category_section(category: String, tools: Array) -> VBoxContainer:
 
 	for tool_def in tools:
 		var tool_name = tool_def.get("name", "")
-		var full_name = "%s_%s" % [category, tool_name] if not "_" in tool_name else tool_name
-		var display_name = tool_name.replace("_", " ").capitalize() if "_" in tool_name else tool_name
+		# Always add category prefix to match _tool_definitions naming
+		var full_name = "%s_%s" % [category, tool_name]
+		var display_name = tool_name.replace("_", " ").capitalize()
+
+		# Create a container for tool checkbox and description
+		var tool_container = VBoxContainer.new()
+		tool_container.add_theme_constant_override("separation", int(_scaled(2)))
+		tools_vbox.add_child(tool_container)
 
 		var tool_check = CheckBox.new()
 		tool_check.text = display_name
 		tool_check.button_pressed = not (full_name in settings.disabled_tools)
 		tool_check.toggled.connect(func(pressed): _on_tool_toggled(full_name, pressed))
-		tools_vbox.add_child(tool_check)
+		tool_container.add_child(tool_check)
+
+		# Add description label with i18n support
+		var desc_key = "tool_%s_desc" % full_name
+		var desc_text = _tr(desc_key)
+		# If no translation found (returns the key), don't show description
+		if desc_text != desc_key:
+			var desc_label = Label.new()
+			desc_label.text = desc_text
+			desc_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+			desc_label.add_theme_font_size_override("font_size", int(_scaled(11)))
+			desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			var desc_margin = MarginContainer.new()
+			desc_margin.add_theme_constant_override("margin_left", int(_scaled(24)))
+			desc_margin.add_child(desc_label)
+			tool_container.add_child(desc_margin)
 
 		_tool_checkboxes[full_name] = tool_check
 
@@ -703,16 +724,18 @@ func _update_category_count(category: String) -> void:
 		return
 
 	var container = _category_containers[category]
-	var tools_list = container["tools_list"] as VBoxContainer
 	var count_label = container["count_label"] as Label
 	var category_check = container["checkbox"] as CheckBox
 
-	var total = tools_list.get_child_count()
+	# Count tools in this category using _tool_checkboxes
+	var total = 0
 	var enabled = 0
 
-	for child in tools_list.get_children():
-		if child is CheckBox and child.button_pressed:
-			enabled += 1
+	for tool_name in _tool_checkboxes:
+		if tool_name.begins_with(category + "_"):
+			total += 1
+			if _tool_checkboxes[tool_name].button_pressed:
+				enabled += 1
 
 	count_label.text = "%d/%d" % [enabled, total]
 	category_check.set_pressed_no_signal(enabled == total)
@@ -1088,20 +1111,15 @@ func _on_category_toggled(category: String, enabled: bool) -> void:
 	if not _category_containers.has(category):
 		return
 
-	var container = _category_containers[category]
-	var tools_list = container["tools_list"] as VBoxContainer
-
-	for child in tools_list.get_children():
-		if child is CheckBox:
-			child.set_pressed_no_signal(enabled)
-			for tool_name in _tool_checkboxes:
-				if _tool_checkboxes[tool_name] == child:
-					if enabled:
-						settings.disabled_tools.erase(tool_name)
-					else:
-						if not tool_name in settings.disabled_tools:
-							settings.disabled_tools.append(tool_name)
-					break
+	# Toggle all tools in this category using _tool_checkboxes
+	for tool_name in _tool_checkboxes:
+		if tool_name.begins_with(category + "_"):
+			_tool_checkboxes[tool_name].set_pressed_no_signal(enabled)
+			if enabled:
+				settings.disabled_tools.erase(tool_name)
+			else:
+				if not tool_name in settings.disabled_tools:
+					settings.disabled_tools.append(tool_name)
 
 	if mcp_server:
 		mcp_server.set_disabled_tools(settings.disabled_tools)
